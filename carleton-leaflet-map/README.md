@@ -1,60 +1,99 @@
 # Carleton College Leaflet Map
 
-This project is a web application that displays an interactive map of Carleton College in Northfield, MN, using the Leaflet library. The map includes markers for each building on campus, providing users with an easy way to explore the college's facilities.
+An interactive web map of Carleton College (Northfield, MN) built with Leaflet. The map displays campus buildings from a GeoJSON file and lets users open a lightbox to view 3D models (GLB) via the `model-viewer` web component.
 
-## Project Structure
+## Repository layout
 
 ```
-carleton-leaflet-map
-├── public
-│   ├── index.html        # Main HTML document
-│   ├── css
-│   │   └── styles.css    # Styles for the webpage
-│   └── js
-│       └── map.js        # JavaScript for initializing the Leaflet map
-├── src
-│   └── data
-│       └── buildings.geojson # GeoJSON data for campus buildings
-├── package.json           # npm configuration file
-├── .gitignore             # Files and directories to ignore in Git
-└── README.md              # Project documentation
+carleton-leaflet-map/
+├── package.json                # npm scripts & deps (start -> live-server public)
+├── public/                     # Static site served to the browser
+│   ├── index.html              # App shell, loads Leaflet and model-viewer
+│   ├── css/
+│   │   └── styles.css          # Page styles and lightbox styles
+│   └── js/
+│       └── map.js              # Map initialization, GeoJSON fetch, popups
+├── src/
+│   ├── data/
+│   │   └── buildings.geojson   # GeoJSON features for campus buildings
+│   └── models/
+│       ├── Burton.glb          # Example 3D model files (GLB)
+│       ├── Burton.webp         # Thumbnails/poster images for models
+│       ├── Watson.glb
+│       ├── Watson.webp
+│       ├── Willis.glb
+│       └── Willis.webp
+└── README.md                   # This file
 ```
 
-## Setup Instructions
+Notes:
+- `public/js/map.js` fetches `../src/data/buildings.geojson` at runtime and constructs model paths like `../src/models/<slug>.glb` unless a feature supplies its own `model` property.
+- The project includes `model-viewer` (via CDN in `index.html`) to display GLB files inside a lightbox.
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repository-url>
-   cd carleton-leaflet-map
-   ```
+## Quick start (local)
 
-2. **Install Dependencies**
-   Make sure you have Node.js installed. Then run:
-   ```bash
-   npm install
-   ```
+Requirements: Node.js (for the convenience script). You only need a simple static server because the app fetches assets via HTTP.
 
-3. **Run the Application**
-   You can use a local server to view the application. For example, you can use the `live-server` package:
-   ```bash
-   npx live-server public
-   ```
+1. Install dependencies:
 
-4. **Open in Browser**
-   Navigate to `http://localhost:8080` (or the port specified by your server) to view the map.
+```powershell
+npm install
+```
 
-## Functionality
+2. Start the local server (provided script uses live-server):
 
-- The map is centered on Carleton College's location.
-- Markers are placed for each building on campus, sourced from the `buildings.geojson` file.
-- Users can interact with the map to explore different buildings and their locations.
+```powershell
+npm start
+```
+
+3. Open the site
+
+Visit the URL printed by the server (usually http://127.0.0.1:8080 or http://localhost:8080). The app's entry point is `public/index.html`.
+
+Tip: Opening `public/index.html` directly with the `file://` protocol may fail because the browser blocks fetch requests and some web components when not served over HTTP; use the local server above.
+
+## Adding or editing buildings and models
+
+- GeoJSON: edit `src/data/buildings.geojson`. Each Feature should include a `properties.name` and either:
+  - no `model` property — `map.js` will try `../src/models/<slug>.glb` (where `<slug>` is a lower-case, dash-separated version of the name), or
+  - a `model` property with a relative path to the GLB (e.g. `../src/models/custom-model.glb`).
+
+Example feature snippet:
+
+```json
+{
+  "type": "Feature",
+  "geometry": { "type": "Point", "coordinates": [-93.1539, 44.4610] },
+  "properties": {
+    "name": "Burton Hall",
+    "model": "../src/models/Burton.glb"
+  }
+}
+```
+
+- Models and thumbnails: place `.glb` files and optional `.webp` posters in `src/models/`. The code will look for a `.webp` thumbnail with the same base filename to use as a poster for `model-viewer`.
+
+## Where behavior is implemented
+
+- `public/js/map.js` — loads GeoJSON, binds popups, constructs model/thumb paths, and controls the lightbox.
+- `public/index.html` — includes Leaflet and `model-viewer` CDN scripts and the lightbox container.
+
+## Troubleshooting
+
+- If buildings do not show up, check the browser console for errors loading `buildings.geojson` or the model files. Ensure paths are correct relative to `public/index.html` (the app expects `src/` to be a sibling of `public/`).
+- If `model-viewer` doesn't render, ensure your browser supports Web Components and that the model file is reachable over HTTP.
 
 ## Technologies Used
 
 - Leaflet.js for mapping
 - HTML, CSS, and JavaScript for web development
 - GeoJSON for building data representation
+- Assistance from Github copilot using GPT-5 mini
 
 ## Contributing
 
-Feel free to submit issues or pull requests if you have suggestions or improvements for the project.
+Contributions welcome. Open issues or PRs for improvements. Small, focused PRs are easiest to review (example: add a new model and the corresponding GeoJSON feature).
+
+## License
+
+MIT — see `package.json` for license metadata.
