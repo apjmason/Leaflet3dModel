@@ -6,7 +6,6 @@ An interactive web map of Carleton College (Northfield, MN) built with Leaflet. 
 
 ```
 carleton-leaflet-map/
-├── package.json                # npm scripts & deps (start -> live-server public)
 ├── public/                     # Static site served to the browser
 │   ├── index.html              # App shell, loads Leaflet and model-viewer
 │   ├── css/
@@ -23,6 +22,7 @@ carleton-leaflet-map/
 │       ├── Watson.webp
 │       ├── Willis.glb
 │       └── Willis.webp
+├── package.json                # npm scripts & deps (start -> live-server public)
 └── README.md                   # This file
 ```
 
