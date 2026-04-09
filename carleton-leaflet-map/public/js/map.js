@@ -22,6 +22,12 @@ function slugify(name){
       .replace(/^-+|-+$/g, '');
 }
 
+// Track the element that had focus before opening the lightbox so we can
+// restore focus when it closes. This prevents setting aria-hidden on an
+// ancestor that still contains the focused element (which causes the
+// accessibility error reported in the browser console).
+let lastFocusedElement = null;
+
 fetch('../src/data/buildings.geojson')
     .then(response => response.json())
     .then(data => {
@@ -60,6 +66,9 @@ function openLightbox({ name, lat, lon, model, thumb }) {
     const body = document.getElementById('lightbox-body');
     if (!lb || !body) return;
 
+    // Remember what had focus so we can restore it when closing.
+    lastFocusedElement = document.activeElement;
+
     // If model is present, embed model-viewer; otherwise show a fallback message
     // Use poster attribute to show the thumbnail while the model loads.
     const modelHtml = model ? `
@@ -86,11 +95,34 @@ function openLightbox({ name, lat, lon, model, thumb }) {
     `;
     lb.classList.add('open');
     lb.setAttribute('aria-hidden', 'false');
+
+    // Move focus into the lightbox to the close button so keyboard users
+    // aren't left focused on a control behind an un-hidden container.
+    const closeBtn = lb.querySelector('.lightbox-close');
+    if (closeBtn && typeof closeBtn.focus === 'function') {
+        closeBtn.focus();
+    }
 }
 
 function closeLightbox() {
     const lb = document.getElementById('lightbox');
     if (!lb) return;
+
+    // Before hiding the lightbox, restore focus to the previously focused
+    // element (or fallback to the map). This prevents hiding an ancestor of
+    // the currently focused control which would trigger the browser error.
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+        try {
+            lastFocusedElement.focus();
+        } catch (e) {
+            const mapEl = document.getElementById('map');
+            if (mapEl && typeof mapEl.focus === 'function') mapEl.focus();
+        }
+    } else {
+        const mapEl = document.getElementById('map');
+        if (mapEl && typeof mapEl.focus === 'function') mapEl.focus();
+    }
+
     lb.classList.remove('open');
     lb.setAttribute('aria-hidden', 'true');
 
