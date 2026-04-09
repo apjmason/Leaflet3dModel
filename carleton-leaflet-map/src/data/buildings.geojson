@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Willis Hall",
+        "model": "../src/models/Willis.glb"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-93.15599391811938, 44.46082048142905]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Burton Hall",
+        "model": "../src/models/Burton.glb"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-93.15669750085537, 44.460584851756515]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Watson Hall",
+        "model": "../src/models/Watson.glb"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-93.1504311251769, 44.4593930173436]
+      }
+    }
+  ]
+}
